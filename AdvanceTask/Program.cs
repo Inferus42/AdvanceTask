@@ -45,10 +45,10 @@ namespace AdvanceTask
             taskB2.Wait();
             Console.WriteLine("done");
 
-            static async void Go(int i, string s)
+            static void Go(int i, string s)
             {
                 Console.WriteLine($"start {s}");
-                await Delay(i);
+                Delay(i);
                 Console.WriteLine($"done {s}");
             }
 

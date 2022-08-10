@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
@@ -13,9 +13,9 @@ namespace AdvanceTask
         {
             Task1(); // and task 2  method Delay
 
-            //TaskLoopMethod(); //task 3
-
             SynchContext(); //task 4
+
+            TaskLoopMethod(); //task 3 
 
             Console.WriteLine($"done Main");
         }
@@ -48,7 +48,7 @@ namespace AdvanceTask
             static void Go(int i, string s)
             {
                 Console.WriteLine($"start {s}");
-                Delay(i);
+                Task.Delay(i);
                 Console.WriteLine($"done {s}");
             }
 
@@ -75,7 +75,8 @@ namespace AdvanceTask
             public Action A { get; set; }
             public int Max { get; set; }
             int _state { get; set; }
-            public Task Task { get; set; }
+            TaskCompletionSource<object> _tack = new TaskCompletionSource<object>();
+            public Task Task => _tack.Task;
 
             private async Task Work()
             {
@@ -84,18 +85,17 @@ namespace AdvanceTask
 
             public void Run()
             {
-                if (_state == 0)
+                if (_state == Max)
                 {
 
-                    Task Task = new Task(() => { Work(); });
-
-                    _state = 0;
-                    Task.ContinueWith(_ => Run());
-                }
-                else if (_state == Max)
-                {
+                    _tack.SetResult("result");
                     return;
                 }
+                _state++;
+                    Task localTask = Task.Delay(100);
+                    localTask = localTask.ContinueWith(_ => A(), TaskContinuationOptions.ExecuteSynchronously);
+                    localTask.ContinueWith(_ => Run(), TaskContinuationOptions.ExecuteSynchronously);
+                
             }
 
         }
